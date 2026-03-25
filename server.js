@@ -7,9 +7,39 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+/* =======================
+   ✅ CORS CONFIG (FIXED)
+======================= */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://attendxcybersquare.vercel.app"
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps / Postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("CORS not allowed"));
+    }
+  },
+  credentials: true
+}));
+
+// handle preflight requests
+app.options('*', cors());
+
+/* =======================
+   MIDDLEWARE
+======================= */
 app.use(express.json());
 
+/* =======================
+   ROUTES
+======================= */
 app.use('/api/auth', require('./src/routes/authRoutes'));
 app.use('/api/users', require('./src/routes/userRoutes'));
 app.use('/api/classes', require('./src/routes/classRoutes'));
@@ -19,16 +49,26 @@ app.use('/api/attendance', require('./src/routes/attendanceRoutes'));
 app.use('/api/reports', require('./src/routes/reportRoutes'));
 app.use('/api/notifications', require('./src/routes/notificationRoutes'));
 
+/* =======================
+   ERROR HANDLER
+======================= */
 app.use(require('./src/middleware/errorHandler'));
 
+/* =======================
+   DB + SERVER START
+======================= */
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ MongoDB Connected');
+
     // Start cron job
     const { startNotificationCron } = require('./src/utils/notificationCron');
     startNotificationCron();
-    app.listen(process.env.PORT, () =>
-      console.log(`🚀 Server running on port ${process.env.PORT}`)
+
+    const PORT = process.env.PORT || 5000;
+
+    app.listen(PORT, () =>
+      console.log(`🚀 Server running on port ${PORT}`)
     );
   })
   .catch(err => {
