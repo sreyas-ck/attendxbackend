@@ -3,13 +3,12 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-
 dotenv.config();
 
 const app = express();
 
 /* =======================
-   ✅ CORS CONFIG (FIXED)
+   CORS CONFIG
 ======================= */
 const allowedOrigins = [
   "http://localhost:5173",
@@ -21,7 +20,6 @@ app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
 
-    // ✅ Allow all Vercel preview deployments
     if (
       allowedOrigins.includes(origin) ||
       origin.endsWith('.vercel.app')
@@ -33,18 +31,37 @@ app.use(cors({
   },
   credentials: true
 }));
-// handle preflight requests
+
 app.options('/{*path}', cors());
-
-
-
-
-
 
 /* =======================
    MIDDLEWARE
 ======================= */
 app.use(express.json());
+
+/* =======================
+   SEED ADMIN (DELETE AFTER USE)
+======================= */
+app.get('/seed-admin', async (req, res) => {
+  try {
+    const bcrypt = require('bcryptjs');
+    const User = require('./src/models/userModel');
+
+    const existing = await User.findOne({ email: 'sreyas@cybersquare.com' });
+    if (existing) return res.json({ message: 'Admin already exists' });
+
+    const hashed = await bcrypt.hash('sreyas123', 10);
+    await User.create({
+      name: 'Sreyas',
+      email: 'sreyas@cybersquare.com',
+      password: hashed,
+      role: 'admin'
+    });
+    res.json({ message: '✅ Admin created successfully' });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
 
 /* =======================
    ROUTES
@@ -70,12 +87,10 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('✅ MongoDB Connected');
 
-    // Start cron job
     const { startNotificationCron } = require('./src/utils/notificationCron');
     startNotificationCron();
 
     const PORT = process.env.PORT || 5000;
-
     app.listen(PORT, () =>
       console.log(`🚀 Server running on port ${PORT}`)
     );
