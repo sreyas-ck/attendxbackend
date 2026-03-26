@@ -15,14 +15,17 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://attendxcybersquare.vercel.app",
   "https://attendxfrontend.vercel.app",
-  "https://attendxfrontend-git-main-sreyas-cks-projects.vercel.app"  // ← add this
 ];
+
 app.use(cors({
   origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps / Postman)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+    // ✅ Allow all Vercel preview deployments
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.endsWith('.vercel.app')
+    ) {
       return callback(null, true);
     } else {
       return callback(new Error("CORS not allowed"));
@@ -30,7 +33,6 @@ app.use(cors({
   },
   credentials: true
 }));
-
 // handle preflight requests
 app.options('/{*path}', cors());
 
