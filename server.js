@@ -42,29 +42,7 @@ app.use(express.json());
 /* =======================
    SEED ADMIN (DELETE AFTER USE)
 ======================= */
-app.get('/seed-admin', async (req, res) => {
-  try {
-    const User = require('./src/models/User');
 
-    const existing = await User.findOne({ email: 'sreyas@cybersquare.com' });
-    if (existing) {
-      await User.deleteOne({ email: 'sreyas@cybersquare.com' });
-    }
-
-    // Don't hash manually — let the User model's pre-save hook do it
-    const user = new User({
-      name: 'Sreyas',
-      email: 'sreyas@cybersquare.com',
-      password: 'sreyas123',
-      role: 'admin'
-    });
-    await user.save();
-
-    res.json({ message: '✅ Admin recreated successfully' });
-  } catch (err) {
-    res.json({ error: err.message });
-  }
-});
 
 /* =======================
    ROUTES
