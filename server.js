@@ -45,7 +45,7 @@ app.use(express.json());
 app.get('/seed-admin', async (req, res) => {
   try {
     const bcrypt = require('bcryptjs');
-    const User = require('./src/models/userModel');
+const User = require('./src/models/User');
 
     const existing = await User.findOne({ email: 'sreyas@cybersquare.com' });
     if (existing) return res.json({ message: 'Admin already exists' });
