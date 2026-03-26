@@ -30,7 +30,12 @@ app.use(cors({
 }));
 
 // handle preflight requests
-app.options('*', cors());
+app.options('/{*path}', cors());
+
+
+
+
+
 
 /* =======================
    MIDDLEWARE
