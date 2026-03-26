@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
+
 dotenv.config();
 
 const app = express();
@@ -12,9 +13,10 @@ const app = express();
 ======================= */
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://attendxcybersquare.vercel.app"
+  "https://attendxcybersquare.vercel.app",
+  "https://attendxfrontend.vercel.app",
+  "https://attendxfrontend-git-main-sreyas-cks-projects.vercel.app"  // ← add this
 ];
-
 app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps / Postman)
